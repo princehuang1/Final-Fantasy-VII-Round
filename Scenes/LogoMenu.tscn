@@ -1,0 +1,40 @@
+[gd_scene load_steps=4 format=3 uid="uid://vmt23fhx4ckr"]
+
+[ext_resource type="Script" uid="uid://b245r5rmk885s" path="res://LogoMenu.gd" id="1_p5uvb"]
+[ext_resource type="Texture2D" uid="uid://rcohs26jrpjg" path="res://Images/FF7_logo.jpg" id="2_kpgx8"]
+[ext_resource type="VideoStream" uid="uid://cmp0qkg5siy6y" path="res://FF7.ogv" id="3_kpgx8"]
+
+[node name="LogoMenu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_p5uvb")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+visible = false
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(1.5, 1.5)
+texture = ExtResource("2_kpgx8")
+
+[node name="VideoStreamPlayer" type="VideoStreamPlayer" parent="."]
+layout_mode = 0
+offset_right = 2304.0
+offset_bottom = 1440.0
+scale = Vector2(0.835, 0.78)
+stream = ExtResource("3_kpgx8")
+volume_db = -80.0
+autoplay = true
+loop = true
+
+[node name="Button" type="Button" parent="."]
+clip_children = 1
+layout_mode = 0
+offset_right = 1918.0
+offset_bottom = 1070.0
+
+[connection signal="pressed" from="Button" to="." method="_on_Button_pressed"]

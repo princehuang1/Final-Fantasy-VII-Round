@@ -1,0 +1,47 @@
+[gd_scene load_steps=5 format=3 uid="uid://bmr5sp1nx7868"]
+
+[ext_resource type="Script" uid="uid://dlot52v4sc5w4" path="res://Scenes/RPSUI.gd" id="1_11axb"]
+[ext_resource type="Texture2D" uid="uid://404to0vfp0qj" path="res://Images/icon/剪刀.png" id="1_k2hcr"]
+[ext_resource type="Texture2D" uid="uid://cumrymucyf1eu" path="res://Images/icon/石頭.png" id="2_11axb"]
+[ext_resource type="Texture2D" uid="uid://dull1gskr7fki" path="res://Images/icon/布.png" id="3_30ub5"]
+
+[node name="RPSUI" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_11axb")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -391.0
+offset_top = 276.0
+offset_right = 1492.0
+offset_bottom = 729.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(0.4, 0.4)
+theme_override_constants/separation = 250
+
+[node name="Scissors" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+icon = ExtResource("1_k2hcr")
+
+[node name="Rock" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+icon = ExtResource("2_11axb")
+
+[node name="Paper" type="Button" parent="HBoxContainer"]
+layout_mode = 2
+icon = ExtResource("3_30ub5")
+
+[connection signal="pressed" from="HBoxContainer/Scissors" to="." method="_on_Scissors_pressed"]
+[connection signal="pressed" from="HBoxContainer/Rock" to="." method="_on_Rock_pressed"]
+[connection signal="pressed" from="HBoxContainer/Paper" to="." method="_on_Paper_pressed"]

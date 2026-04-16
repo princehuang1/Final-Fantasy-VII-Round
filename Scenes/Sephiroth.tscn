@@ -1,0 +1,131 @@
+[gd_scene load_steps=16 format=3 uid="uid://5p10n8q6iapl"]
+
+[ext_resource type="Script" uid="uid://du6icxf8ywkyn" path="res://Sephiroth.gd" id="1_cwli2"]
+[ext_resource type="Texture2D" uid="uid://blb3ni0fxu8r1" path="res://Sep_background.webp" id="1_xppvn"]
+[ext_resource type="Texture2D" uid="uid://iotb5e7ua34k" path="res://Sephi_standby.png" id="2_o58ki"]
+
+[sub_resource type="Theme" id="Theme_o58ki"]
+Label/font_sizes/font_size = 13
+
+[sub_resource type="Theme" id="Theme_cwli2"]
+Label/font_sizes/font_size = 13
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_o58ki"]
+atlas = ExtResource("2_o58ki")
+region = Rect2(0, 0, 124, 119)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_cwli2"]
+atlas = ExtResource("2_o58ki")
+region = Rect2(124, 0, 124, 119)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c2vx7"]
+atlas = ExtResource("2_o58ki")
+region = Rect2(248, 0, 124, 119)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_bf7rv"]
+atlas = ExtResource("2_o58ki")
+region = Rect2(0, 119, 124, 119)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_50bq1"]
+atlas = ExtResource("2_o58ki")
+region = Rect2(124, 119, 124, 119)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_c5iev"]
+atlas = ExtResource("2_o58ki")
+region = Rect2(248, 119, 124, 119)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_doowi"]
+atlas = ExtResource("2_o58ki")
+region = Rect2(0, 238, 124, 119)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_86re0"]
+atlas = ExtResource("2_o58ki")
+region = Rect2(124, 238, 124, 119)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_xk0vt"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_o58ki")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_cwli2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c2vx7")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_bf7rv")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_50bq1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_c5iev")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_doowi")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_86re0")
+}],
+"loop": true,
+"name": &"default",
+"speed": 7.0
+}]
+
+[sub_resource type="Theme" id="Theme_c2vx7"]
+Button/font_sizes/font_size = 19
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_cwli2")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+self_modulate = Color(1, 1, 1, 0.470588)
+offset_right = 40.0
+offset_bottom = 40.0
+texture = ExtResource("1_xppvn")
+
+[node name="PanelContainer" type="PanelContainer" parent="."]
+self_modulate = Color(1, 1, 1, 0.490196)
+offset_left = 152.0
+offset_top = 173.0
+offset_right = 292.0
+offset_bottom = 303.0
+scale = Vector2(5, 5)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="PanelContainer"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_o58ki")
+text = "傳說英雄 賽菲羅斯"
+
+[node name="Label2" type="Label" parent="PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme = SubResource("Theme_cwli2")
+text = "賽菲羅斯擁有兩種攻擊
+手段，既可對所有敵人
+造成傷害，也可對單一
+敵人造成毀滅性打擊"
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+position = Vector2(1393, 609)
+scale = Vector2(3, 3)
+sprite_frames = SubResource("SpriteFrames_xk0vt")
+autoplay = "default"
+frame_progress = 0.538208
+
+[node name="Next" type="Button" parent="."]
+offset_left = 779.0
+offset_top = 907.0
+offset_right = 899.0
+offset_bottom = 942.0
+scale = Vector2(3, 3)
+theme = SubResource("Theme_c2vx7")
+text = "確 認
+"
+
+[connection signal="pressed" from="Next" to="." method="_on_Next_pressed"]

@@ -1,0 +1,322 @@
+[gd_scene load_steps=8 format=3 uid="uid://bp85vkm505qi2"]
+
+[ext_resource type="Texture2D" uid="uid://clgiw554yf6ys" path="res://Images/background_hell.jpg" id="1_ahap6"]
+[ext_resource type="PackedScene" uid="uid://148foj74j1wj" path="res://Scenes/Player.tscn" id="2_hb1yk"]
+[ext_resource type="PackedScene" uid="uid://c2vnf3ftal2y" path="res://Scenes/Boss.tscn" id="3_u810s"]
+[ext_resource type="PackedScene" uid="uid://b08ht1m76epyo" path="res://Scenes/SkillSelectUI.tscn" id="4_8uoga"]
+[ext_resource type="PackedScene" uid="uid://bmr5sp1nx7868" path="res://Scenes/RPSUI.tscn" id="5_hb1yk"]
+[ext_resource type="Texture2D" uid="uid://cs47ewrov3c6o" path="res://duece.png" id="6_u810s"]
+
+[sub_resource type="GDScript" id="GDScript_e5vbs"]
+script/source = "# BattleScene.gd
+extends Node
+
+signal battle_over(winner) # winner 可以是 \"player\" 或 \"boss\"
+
+@onready var player_node = $Player
+@onready var boss_node = $Boss/boss4 
+@onready var rps_ui = $RPSUI
+@onready var skill_select_ui = $SkillSelectUI 
+@onready var deuce_texture_rect = $Deuce
+#@onready var restart_button = $RestartButton #還沒實裝
+
+var current_state = \"RPS\" # RPS, SELECT_SKILL, PERFORM_ATTACK
+var is_player_turn = true
+var player_choice = -1
+#var boss_choice = 0     #Boss固定出拳(0: 剪刀, 1: 石頭, 2: 布) 
+var boss_choice = randi() % 3
+var current_attacking_character 
+var attack_skill_index = -1 # 記錄玩家選擇的技能索引 (對應到 Cha 的 index)
+
+func _ready():
+	
+	rps_ui.connect(\"player_choice\", _on_player_rps_choice)
+	skill_select_ui.connect(\"skill_selected\", _on_skill_selected)
+	
+	# Boss 節點的信號連接 (因為現在是固定 Boss，所以直接在 _ready 連接)
+	if is_instance_valid(boss_node):
+		boss_node.connect(\"animation_finished\", _on_boss_animation_finished)
+		boss_node.connect(\"boss_defeated\", _on_boss_defeated)
+	else:
+		printerr(\"錯誤：BattleScene 的 _ready 找不到 Boss 節點 ($Boss/boss4)！\")
+
+	# 玩家角色信號連接
+	if is_instance_valid(player_node.cha1):
+		player_node.cha1.connect(\"animation_finished\", _on_cha1_animation_finished)
+		player_node.cha1.connect(\"character_defeated\", _on_character_defeated)
+	if is_instance_valid(player_node.cha2):
+		player_node.cha2.connect(\"animation_finished\", _on_cha2_animation_finished)
+		player_node.cha2.connect(\"character_defeated\", _on_character_defeated)
+	if is_instance_valid(player_node.cha3):
+		player_node.cha3.connect(\"animation_finished\", _on_cha3_animation_finished)
+		player_node.cha3.connect(\"character_defeated\", _on_character_defeated)
+
+	#restart_button.connect(\"pressed\", _on_restart_button_pressed)
+	
+	deuce_texture_rect.visible = false
+	#restart_button.visible = false
+	
+	start_rps_round()
+	_update_skill_buttons() # 遊戲開始時，更新一次技能按鈕狀態
+
+func start_rps_round():
+	current_state = \"RPS\"
+	is_player_turn = true
+	player_choice = -1
+	boss_choice = randi() % 3 #若要固定boss出拳，這裡要註解調
+	rps_ui.show()
+	skill_select_ui.hide()
+	_update_skill_buttons() # 每次新回合，更新技能按鈕狀態
+
+func _on_player_rps_choice(choice: int):
+	if current_state != \"RPS\" or not is_player_turn:
+		return
+	player_choice = choice
+	rps_ui.hide()
+	determine_rps_winner()
+
+func determine_rps_winner():
+	if player_choice == boss_choice:
+		print(\"平手！\")
+		deuce_texture_rect.visible = true
+		await get_tree().create_timer(1.0).timeout
+		deuce_texture_rect.visible = false
+		start_rps_round()
+	elif (player_choice == 1 and boss_choice == 0) or \\
+		 (player_choice == 2 and boss_choice == 1) or \\
+		 (player_choice == 0 and boss_choice == 2):
+		print(\"玩家猜拳獲勝！\")
+		current_state = \"SELECT_SKILL\"
+		show_skill_selection()
+	else:
+		print(\"Boss猜拳獲勝！\")
+		current_state = \"PERFORM_ATTACK\"
+		var boss_attacks = [\"attack\", \"attack2\"]
+		var chosen_attack = boss_attacks[randi() % boss_attacks.size()]
+		boss_attack(chosen_attack)
+
+func show_skill_selection():
+	is_player_turn = true
+	skill_select_ui.show()
+	_update_skill_buttons() # 顯示技能選單時，更新按鈕狀態
+
+func _on_skill_selected(skill_index: int):
+	if current_state != \"SELECT_SKILL\" or not is_player_turn:
+		return
+	current_state = \"PERFORM_ATTACK\"
+	skill_select_ui.hide()
+	attack_skill_index = skill_index
+	player_attack(attack_skill_index)
+
+func player_attack(skill_index: int):
+	var target_cha
+	if skill_index == 0 and is_instance_valid(player_node.cha1):
+		target_cha = player_node.cha1
+	elif skill_index == 1 and is_instance_valid(player_node.cha2):
+		target_cha = player_node.cha2
+	elif skill_index == 2 and is_instance_valid(player_node.cha3):
+		target_cha = player_node.cha3
+
+	if is_instance_valid(target_cha) and target_cha.is_alive():
+		print(\"玩家角色 \", target_cha.name, \" 準備攻擊。\")
+		current_attacking_character = target_cha
+		
+		var damage_to_deal = 0
+		if target_cha == player_node.cha1: # 如果是 Cha1
+			# 呼叫 Cha1 特有的爆擊傷害計算函數
+			damage_to_deal = target_cha.do_attack_animation_and_get_damage()
+			await target_cha.get_node(\"AnimationPlayer\").animation_finished 
+		else: # 其他角色 (Cha2, Cha3) 
+			target_cha.play_animation(\"attack\")
+			await target_cha.get_node(\"AnimationPlayer\").animation_finished
+			damage_to_deal = target_cha.get_attack_power()
+		
+		boss_node.take_damage(target_cha.get_attack_power())
+		
+		if target_cha == player_node.cha3:
+			var healing_amount = target_cha.get_healing_amount()
+			player_node.heal_all_characters(healing_amount)
+			print(\"Cha3 攻擊後，為所有玩家角色回復 \", healing_amount, \" 點 HP。\")
+
+		target_cha.play_animation(\"idle\")
+		check_battle_end() 
+		if current_state != \"GAME_OVER\":
+			start_rps_round()
+	else:
+		print(\"選擇了無效或已死亡的角色！skill_index: \", skill_index)
+		current_state = \"SELECT_SKILL\"
+		show_skill_selection()
+		_update_skill_buttons() # 確保按鈕狀態已更新
+		
+func boss_attack(attack_type: String):
+	if is_instance_valid(boss_node) and boss_node.is_alive():
+		current_attacking_character = boss_node
+		boss_node.play_animation(attack_type)
+		await boss_node.get_node(\"AnimationPlayer\").animation_finished
+		boss_node.play_animation(\"idle\")
+
+		if attack_type == \"attack\":
+			var alive_chas = player_node.get_all_alive_characters()
+			if !alive_chas.is_empty():
+				print(\"Boss 對所有存活玩家角色造成 60 點傷害。\")
+				for target_cha in alive_chas:
+					if is_instance_valid(target_cha):
+						target_cha.take_damage(60)
+						target_cha.play_animation(\"idle\")
+						#print(\"BattleScene:   - \", target_cha.name, \" 受到 60 點傷害。\")
+			#else:
+				#print(\"BattleScene: 沒有存活的玩家角色可供 'attack' 攻擊。\")
+		elif attack_type == \"attack2\":
+			var alive_chas = player_node.get_all_alive_characters()
+			if !alive_chas.is_empty():
+				var target_cha = alive_chas[randi() % alive_chas.size()]
+				if is_instance_valid(target_cha):
+					target_cha.take_damage(78)
+					target_cha.play_animation(\"idle\")
+					print(\"Boss 對 \", target_cha.name, \" 造成 78 點傷害。\")
+				#else:
+					#print(\"BattleScene: 錯誤：Boss 選擇了無效的攻擊目標！\")
+			#else:
+				#print(\"BattleScene: 沒有存活的玩家角色可供 'attack2' 攻擊。\")
+		
+		check_battle_end()
+		if current_state != \"GAME_OVER\":
+			start_rps_round()
+	elif is_instance_valid(boss_node):
+		boss_node.play_animation(\"idle\")
+		check_battle_end() 
+
+func _on_boss_animation_finished(): pass
+func _on_cha1_animation_finished(): pass
+func _on_cha2_animation_finished(): pass
+func _on_cha3_animation_finished(): pass
+
+#死了就隱藏技能
+func _update_skill_buttons():
+	#print(\"--- BattleScene: 更新技能按鈕狀態開始 ---\")
+	if !is_instance_valid(skill_select_ui):
+		printerr(\"BattleScene: 錯誤: skill_select_ui 無效，無法更新技能按鈕！\")
+		return
+
+	var cha1_alive = is_instance_valid(player_node.cha1) and player_node.cha1.is_alive()
+	var cha2_alive = is_instance_valid(player_node.cha2) and player_node.cha2.is_alive()
+	var cha3_alive = is_instance_valid(player_node.cha3) and player_node.cha3.is_alive()
+
+	var skill1_button = skill_select_ui.get_node_or_null(\"Skill1Button\")
+	var skill2_button = skill_select_ui.get_node_or_null(\"Skill2Button\")
+	var skill3_button = skill_select_ui.get_node_or_null(\"Skill3Button\")
+
+	if is_instance_valid(skill1_button):
+		skill1_button.visible = cha1_alive
+		skill1_button.disabled = !cha1_alive
+		#print(\"BattleScene: Skill1Button 可見: \", skill1_button.visible, \", 禁用: \", skill1_button.disabled)
+	#else:
+		#printerr(\"BattleScene: 錯誤: 找不到 Skill1Button！請檢查 SkillSelectUI 內部按鈕名稱。\")
+	
+	if is_instance_valid(skill2_button):
+		skill2_button.visible = cha2_alive
+		skill2_button.disabled = !cha2_alive
+		#print(\"BattleScene: Skill2Button 可見: \", skill2_button.visible, \", 禁用: \", skill2_button.disabled)
+	#else:
+		#printerr(\"BattleScene: 錯誤: 找不到 Skill2Button！請檢查 SkillSelectUI 內部按鈕名稱。\")
+
+	if is_instance_valid(skill3_button):
+		skill3_button.visible = cha3_alive
+		skill3_button.disabled = !cha3_alive
+		#print(\"BattleScene: Skill3Button 可見: \", skill3_button.visible, \", 禁用: \", skill3_button.disabled)
+	#else:
+		#printerr(\"BattleScene: 錯誤: 找不到 Skill3Button！請檢查 SkillSelectUI 內部按鈕名稱。\")
+	#print(\"--- BattleScene: 更新技能按鈕狀態結束 ---\")
+
+func check_battle_end():
+	# 直接呼叫 identify_battle_end，讓它處理所有勝負判斷和場景切換
+	identify_battle_end()
+
+# 贏了跳到Win，輸了跳到Loss
+func identify_battle_end(): 
+	# 判斷 Boss 是否死亡 (玩家勝利)
+	if is_instance_valid(boss_node) and !boss_node.is_alive():
+		print(\"玩家勝利！\")
+		if is_instance_valid(boss_node):
+			boss_node.hide() # 隱藏 Boss
+		current_state = \"GAME_OVER\"
+		emit_signal(\"battle_over\", \"player\")
+		
+		print(\"2 秒後跳轉到 Win.tscn...\")
+		await get_tree().create_timer(2.0).timeout
+		get_tree().change_scene_to_file(\"res://Scenes/Win.tscn\") # 請確保路徑正確
+	# 判斷所有玩家角色是否死亡 (Boss 勝利)
+	elif player_node.get_all_alive_characters().is_empty():
+		print(\"玩家失敗 !\")
+		current_state = \"GAME_OVER\"
+		emit_signal(\"battle_over\", \"boss\")
+		
+		print(\"2 秒後跳轉到 Loss.tscn...\")
+		await get_tree().create_timer(2.0).timeout
+		get_tree().change_scene_to_file(\"res://Scenes/Loss.tscn\")
+	# 如果以上兩種情況都不是，表示戰鬥尚未結束
+	#else:
+		#print(\"戰鬥仍在進行中，沒有勝負結果。\")
+
+
+func _on_character_defeated(character_node):
+	print(\"Character defeated:\", character_node.name)
+	character_node.hide()
+	_update_skill_buttons() # 角色死亡時立即更新技能按鈕
+	check_battle_end() 
+
+func _on_boss_defeated():
+	print(\"Boss defeated!\")
+	pass
+
+#func show_restart_button():
+	#restart_button.visible = true
+
+func _on_restart_button_pressed():
+	print(\"重新開始按鈕被按下，重新載入場景。\")
+	get_tree().reload_current_scene()
+"
+
+[node name="BattleScene" type="Node2D"]
+script = SubResource("GDScript_e5vbs")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+modulate = Color(0.892756, 0.892756, 0.892756, 1)
+self_modulate = Color(1, 1, 1, 0.690196)
+layout_direction = 1
+offset_left = -199.0
+offset_top = -187.0
+offset_right = 1721.0
+offset_bottom = 893.0
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("1_ahap6")
+
+[node name="Boss" parent="." instance=ExtResource("3_u810s")]
+position = Vector2(108, -56)
+
+[node name="Player" parent="." instance=ExtResource("2_hb1yk")]
+position = Vector2(-65, -39)
+
+[node name="RPSUI" parent="." instance=ExtResource("5_hb1yk")]
+visible = false
+offset_left = 989.0
+offset_top = 571.0
+offset_right = 989.0
+offset_bottom = 571.0
+
+[node name="SkillSelectUI" parent="." instance=ExtResource("4_8uoga")]
+visible = false
+offset_left = 23.0
+offset_top = 51.0
+offset_right = 23.0
+offset_bottom = 51.0
+
+[node name="Deuce" type="TextureRect" parent="."]
+visible = false
+self_modulate = Color(0.964742, 0.964742, 0.964742, 1)
+offset_left = 754.0
+offset_top = 112.0
+offset_right = 2034.0
+offset_bottom = 572.0
+scale = Vector2(0.3, 0.3)
+texture = ExtResource("6_u810s")
