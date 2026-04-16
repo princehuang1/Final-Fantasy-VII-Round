@@ -1,0 +1,358 @@
+[gd_scene load_steps=18 format=3 uid="uid://cntiqjhb4gebc"]
+
+[ext_resource type="Texture2D" uid="uid://dc44p6fo573yl" path="res://Images/FF7_flower.webp" id="1_adlwc"]
+[ext_resource type="Texture2D" uid="uid://dcupf2upe87kl" path="res://Images/Player/Profile/Cloud_profile.jpg" id="2_jbnqh"]
+[ext_resource type="Texture2D" uid="uid://c51sm05qlugs3" path="res://Images/Player/Profile/Aerith_profile.jpg" id="3_8cwx3"]
+[ext_resource type="Texture2D" uid="uid://cl5m4smxh56d4" path="res://Images/Player/Profile/Yuna_profile.jpg" id="4_ydguf"]
+[ext_resource type="Texture2D" uid="uid://ms5en8sxvt7m" path="res://Images/Player/Profile/Tifa_profile.jpg" id="5_vfpf0"]
+[ext_resource type="Texture2D" uid="uid://cst8b6eepre77" path="res://Images/Player/Profile/Sephiroth_profile.jpg" id="6_adlwc"]
+[ext_resource type="Texture2D" uid="uid://gx8lnre333aw" path="res://Images/Frame/Cloud_idle/tile000.png" id="7_adlwc"]
+[ext_resource type="Texture2D" uid="uid://dcsb5m2wbwdag" path="res://Images/Player/Aerith_player.png" id="8_2arlp"]
+[ext_resource type="Texture2D" uid="uid://j0qxqj38sc66" path="res://Images/icon/Yuna_icona.png" id="9_adlwc"]
+[ext_resource type="Texture2D" uid="uid://cuf4x5bu1f8l6" path="res://Images/Player/Tifa_player.png" id="10_un5gs"]
+[ext_resource type="Texture2D" uid="uid://bxjlden2miuw2" path="res://Images/Frame/Sephi_idle/Sephi_idle1.png" id="11_w288a"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_w1cc0"]
+bg_color = Color(0.321728, 0.321728, 0.321728, 1)
+
+[sub_resource type="Theme" id="Theme_4qrev"]
+Label/font_sizes/font_size = 100
+Label/fonts/font = null
+Label/styles/normal = SubResource("StyleBoxFlat_w1cc0")
+
+[sub_resource type="GDScript" id="GDScript_vfpf0"]
+script/source = "\"\"\"
+extends Control
+
+var selected_characters := []
+
+@onready var start_button = $StartButton
+@onready var character_buttons = [
+	$HBoxContainer/CenterContainer1/actor1/Cha1_Button,
+	$HBoxContainer/CenterContainer2/actor2/Cha2_Button,
+	$HBoxContainer/CenterContainer5/actor5/Cha3_Button,
+]
+
+func _ready():
+	start_button.disabled = true  # 初始禁用開始按鈕
+
+	for button in character_buttons:
+		button.pressed.connect(on_character_button_pressed.bind(button))
+
+	start_button.pressed.connect(on_start_button_pressed)
+
+func on_character_button_pressed(button):
+	var character_name = button.name
+
+	if character_name in selected_characters:
+		# 如果已選，就取消選取
+		selected_characters.erase(character_name)
+		button.modulate = Color(1, 1, 1)  # 變回白色
+	elif selected_characters.size() < 3:
+		selected_characters.append(character_name)
+		button.modulate = Color(0.5, 0.5, 0.5)  # 灰色表示選中
+
+	# 檢查是否選滿三個
+	start_button.disabled = selected_characters.size() != 3
+
+func on_start_button_pressed():
+	if selected_characters.size() == 3:
+		# 這裡可以選擇將選擇結果傳給下一個場景，例如用 Global 或 Singleton
+		get_tree().change_scene_to_file(\"res://Scenes/BattleScene.tscn\")
+
+
+func _on_cha1_button_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_Cha1_Button_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_Cha2_Button_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_Cha5_Button_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_StartButton_pressed() -> void:
+	pass # Replace with function body.
+
+
+func _on_Cha3Button_pressed() -> void:
+	pass # Replace with function body.
+\"\"\"
+"
+
+[sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_adlwc"]
+
+[sub_resource type="Theme" id="Theme_2arlp"]
+Label/colors/font_outline_color = Color(0, 0, 0, 1)
+Label/styles/normal = SubResource("StyleBoxEmpty_adlwc")
+
+[sub_resource type="Theme" id="Theme_gf7gk"]
+
+[node name="CharacterSelect" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 607.0
+offset_top = 46.0
+offset_right = 638.0
+offset_bottom = 149.0
+grow_horizontal = 2
+grow_vertical = 2
+scale = Vector2(1.9, 1.9)
+theme = SubResource("Theme_4qrev")
+script = SubResource("GDScript_vfpf0")
+
+[node name="TextureRect" type="TextureRect" parent="."]
+modulate = Color(1, 1, 1, 0.5)
+layout_mode = 0
+offset_left = -397.895
+offset_top = -35.7895
+offset_right = 1522.11
+offset_bottom = 1044.21
+scale = Vector2(0.6, 0.6)
+texture = ExtResource("1_adlwc")
+
+[node name="Label" type="Label" parent="."]
+self_modulate = Color(1, 1, 1, 0.8)
+layout_mode = 0
+offset_left = 18.421
+offset_top = -20.0
+offset_right = 1127.42
+offset_bottom = 117.001
+scale = Vector2(0.3, 0.3)
+theme = SubResource("Theme_2arlp")
+text = "Choose 3 champion"
+horizontal_alignment = 1
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = -318.421
+offset_top = 20.0
+offset_right = 3861.58
+offset_bottom = 1193.0
+scale = Vector2(0.24, 0.24)
+theme_override_constants/separation = 10
+
+[node name="CenterContainer1" type="CenterContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="actor1" type="VBoxContainer" parent="HBoxContainer/CenterContainer1"]
+custom_minimum_size = Vector2(0.5, 0.5)
+layout_mode = 2
+
+[node name="Cha1_Button" type="Button" parent="HBoxContainer/CenterContainer1/actor1"]
+layout_mode = 2
+icon = ExtResource("2_jbnqh")
+
+[node name="Label" type="Label" parent="HBoxContainer/CenterContainer1/actor1"]
+layout_mode = 2
+theme = SubResource("Theme_gf7gk")
+text = "Cloud"
+horizontal_alignment = 1
+
+[node name="CenterContainer2" type="CenterContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="actor2" type="VBoxContainer" parent="HBoxContainer/CenterContainer2"]
+custom_minimum_size = Vector2(0.5, 0.5)
+layout_mode = 2
+
+[node name="Cha2_Button" type="Button" parent="HBoxContainer/CenterContainer2/actor2"]
+layout_mode = 2
+icon = ExtResource("3_8cwx3")
+
+[node name="Label" type="Label" parent="HBoxContainer/CenterContainer2/actor2"]
+layout_mode = 2
+theme = SubResource("Theme_gf7gk")
+text = "Aerith"
+horizontal_alignment = 1
+
+[node name="CenterContainer3" type="CenterContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="actor3" type="VBoxContainer" parent="HBoxContainer/CenterContainer3"]
+custom_minimum_size = Vector2(0.5, 0.5)
+layout_mode = 2
+
+[node name="Cha3_Button" type="Button" parent="HBoxContainer/CenterContainer3/actor3"]
+layout_mode = 2
+icon = ExtResource("4_ydguf")
+
+[node name="Label" type="Label" parent="HBoxContainer/CenterContainer3/actor3"]
+layout_mode = 2
+theme = SubResource("Theme_gf7gk")
+text = "Yuna"
+horizontal_alignment = 1
+
+[node name="CenterContainer4" type="CenterContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="actor4" type="VBoxContainer" parent="HBoxContainer/CenterContainer4"]
+custom_minimum_size = Vector2(0.5, 0.5)
+layout_mode = 2
+
+[node name="Cha4_Button" type="Button" parent="HBoxContainer/CenterContainer4/actor4"]
+layout_mode = 2
+icon = ExtResource("5_vfpf0")
+
+[node name="Label" type="Label" parent="HBoxContainer/CenterContainer4/actor4"]
+layout_mode = 2
+theme = SubResource("Theme_gf7gk")
+text = "Tifa"
+horizontal_alignment = 1
+
+[node name="CenterContainer5" type="CenterContainer" parent="HBoxContainer"]
+layout_mode = 2
+
+[node name="actor5" type="VBoxContainer" parent="HBoxContainer/CenterContainer5"]
+custom_minimum_size = Vector2(0.5, 0.5)
+layout_mode = 2
+
+[node name="Cha3_Button" type="Button" parent="HBoxContainer/CenterContainer5/actor5"]
+layout_mode = 2
+icon = ExtResource("6_adlwc")
+
+[node name="Label" type="Label" parent="HBoxContainer/CenterContainer5/actor5"]
+layout_mode = 2
+theme = SubResource("Theme_gf7gk")
+text = "Sephiroth"
+horizontal_alignment = 1
+
+[node name="技能" type="HBoxContainer" parent="."]
+layout_mode = 0
+offset_left = -300.0
+offset_top = 305.0
+offset_right = 370.0
+offset_bottom = 408.0
+scale = Vector2(1.5, 1.5)
+theme_override_constants/separation = 42
+
+[node name="1" type="VBoxContainer" parent="技能"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Button" type="Button" parent="技能/1"]
+layout_mode = 2
+text = "凌空破"
+
+[node name="Button2" type="Button" parent="技能/1"]
+layout_mode = 2
+text = "迴旋劍舞"
+
+[node name="Button3" type="Button" parent="技能/1"]
+layout_mode = 2
+text = "究極武神霸斬"
+
+[node name="2" type="VBoxContainer" parent="技能"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Button" type="Button" parent="技能/2"]
+layout_mode = 2
+text = "重逢之花"
+
+[node name="Button2" type="Button" parent="技能/2"]
+layout_mode = 2
+text = "星之淚痕"
+
+[node name="Button3" type="Button" parent="技能/2"]
+layout_mode = 2
+text = "最後的祝福"
+
+[node name="3" type="VBoxContainer" parent="技能"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Button" type="Button" parent="技能/3"]
+layout_mode = 2
+text = "終末輓歌"
+
+[node name="Button2" type="Button" parent="技能/3"]
+layout_mode = 2
+text = "女神之淚"
+
+[node name="Button3" type="Button" parent="技能/3"]
+layout_mode = 2
+text = "終焉鎮魂曲"
+
+[node name="4" type="VBoxContainer" parent="技能"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Button" type="Button" parent="技能/4"]
+layout_mode = 2
+text = "掌摑快攻"
+
+[node name="Button2" type="Button" parent="技能/4"]
+layout_mode = 2
+text = "緋色螺旋"
+
+[node name="Button3" type="Button" parent="技能/4"]
+layout_mode = 2
+text = "真•第七天堂"
+
+[node name="5" type="VBoxContainer" parent="技能"]
+layout_mode = 2
+theme_override_constants/separation = 5
+
+[node name="Button" type="Button" parent="技能/5"]
+layout_mode = 2
+text = "天舞輪迴斬"
+
+[node name="Button2" type="Button" parent="技能/5"]
+layout_mode = 2
+text = "真•八刀一閃"
+
+[node name="Button3" type="Button" parent="技能/5"]
+layout_mode = 2
+text = "奧義•終焉"
+
+[node name="Character_icon" type="Control" parent="."]
+anchors_preset = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="1" type="Sprite2D" parent="Character_icon"]
+position = Vector2(-141.579, 480)
+texture = ExtResource("7_adlwc")
+
+[node name="2" type="Sprite2D" parent="Character_icon"]
+position = Vector2(50.5263, 486.316)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("8_2arlp")
+
+[node name="3" type="Sprite2D" parent="Character_icon"]
+position = Vector2(252.632, 462.632)
+scale = Vector2(1.2, 1.2)
+texture = ExtResource("9_adlwc")
+
+[node name="4" type="Sprite2D" parent="Character_icon"]
+position = Vector2(460, 470.526)
+scale = Vector2(1.1, 1.1)
+texture = ExtResource("10_un5gs")
+
+[node name="5" type="Sprite2D" parent="Character_icon"]
+position = Vector2(676.316, 464.737)
+scale = Vector2(0.35, 0.35)
+texture = ExtResource("11_w288a")
+
+[node name="StartButton" type="Button" parent="."]
+layout_mode = 0
+offset_left = 75.2631
+offset_top = 473.684
+offset_right = 175.263
+offset_bottom = 504.684
+scale = Vector2(2, 2)
+text = "Start"
+
+[connection signal="pressed" from="HBoxContainer/CenterContainer1/actor1/Cha1_Button" to="." method="_on_Cha1_Button_pressed"]
+[connection signal="pressed" from="HBoxContainer/CenterContainer2/actor2/Cha2_Button" to="." method="_on_Cha2_Button_pressed"]
+[connection signal="pressed" from="HBoxContainer/CenterContainer5/actor5/Cha3_Button" to="." method="_on_Cha3Button_pressed"]
+[connection signal="pressed" from="StartButton" to="." method="_on_StartButton_pressed"]

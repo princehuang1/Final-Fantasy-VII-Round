@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://h37ebwc87ew"]
+
+[ext_resource type="AudioStream" uid="uid://hooswgdlrhg2" path="res://FF7_BGM.wav" id="1_exuiv"]
+
+[node name="BGM" type="Node2D"]
+
+[node name="Musicplayer" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("1_exuiv")
+autoplay = true

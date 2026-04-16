@@ -1,0 +1,31 @@
+[gd_scene load_steps=6 format=3 uid="uid://bvi6gbqadk7py"]
+
+[ext_resource type="Texture2D" uid="uid://dvatdbxbbe3hl" path="res://Defeat.png" id="1_q5yco"]
+[ext_resource type="Script" uid="uid://b7m1skf5andxb" path="res://Loss.gd" id="2_8msks"]
+[ext_resource type="Texture2D" uid="uid://doxqam72ux85p" path="res://tifa_loss.png" id="3_3v5qy"]
+[ext_resource type="Texture2D" uid="uid://b5tytcdnplyw0" path="res://Cloud_loss.png" id="4_k307b"]
+[ext_resource type="Texture2D" uid="uid://d2tgkupv5x413" path="res://Aerith_loss.png" id="5_p4ele"]
+
+[node name="Loss" type="Node2D"]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+offset_right = 40.0
+offset_bottom = 40.0
+scale = Vector2(0.5, 0.5)
+texture = ExtResource("1_q5yco")
+script = ExtResource("2_8msks")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(598, 930)
+scale = Vector2(3, 3)
+texture = ExtResource("3_3v5qy")
+
+[node name="Sprite2D2" type="Sprite2D" parent="."]
+position = Vector2(947, 928)
+scale = Vector2(3, 3)
+texture = ExtResource("4_k307b")
+
+[node name="Sprite2D3" type="Sprite2D" parent="."]
+position = Vector2(1313, 927)
+scale = Vector2(3, 3)
+texture = ExtResource("5_p4ele")
